@@ -246,6 +246,7 @@ add_todo:
 
 render_todos_as_html:
     push todo_begin
+    mov qword [rsp], todo_begin
 .next_todo:
     mov rax, [rsp] 
     mov rbx, todo_begin
