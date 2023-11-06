@@ -205,14 +205,6 @@ start_with:
 
 segment readable writeable
 
-struc servaddr_in
-{
-    .sin_family dw 0
-    .sin_port   dw 0
-    .sin_addr   dd 0
-    .sin_zero   dq 0
-}
-
 sockfd dq -1
 connfd dq -1
 servaddr servaddr_in
