@@ -17,6 +17,7 @@ main:
     funcall2 add_todo, coffee, coffee_len
     funcall2 add_todo, tea, tea_len
     funcall2 add_todo, milk, milk_len
+    funcall2 add_todo, aaaa, aaaa_len
 
     write STDOUT, start, start_len
 
@@ -54,15 +55,15 @@ main:
 
     write STDOUT, request, [request_len] 
 
-    funcall4 start_with, request, [request_len], get, get_len
+    funcall4 starts_with, request, [request_len], get, get_len
     cmp rax, 0
     jg .handle_get_method
 
-    funcall4 start_with, request, [request_len], post, post_len
+    funcall4 starts_with, request, [request_len], post, post_len
     cmp rax, 0
     jg .handle_post_method
 
-    funcall4 start_with, request, [request_len], put, put_len
+    funcall4 starts_with, request, [request_len], put, put_len
     cmp rax, 0
     jg .handle_put_method
 
@@ -75,7 +76,7 @@ main:
    sub rsi, get_len
    mov rdx, index_route
    mov r10, index_route_len
-   call start_with
+   call starts_with
    cmp rax, 0
    jg .handle_get_index
 
@@ -113,9 +114,17 @@ main:
     close [sockfd]
     exit 1
 
-;; rdi - buf
-;; rsi - count
+;; rdi - void* buf
+;; rsi - size_t count
 add_todo:
+
+    cmp rsi, 0xFF
+    jle .do_not_truncate 
+
+    mov rsi, 0xFF
+
+.do_not_truncate:
+
     mov rax, todo_begin
     add rax, [todo_end_offset]
     mov rbx, rsi
@@ -124,15 +133,15 @@ add_todo:
 
     ;; dst: rax
     ;; src: rdi
-    ;; count: bl
+    ;; count: rbx
 .next_byte:
-    cmp bl, 0
+    cmp rbx, 0
     jle .done
     mov cl, byte [rdi]
     mov byte [rax], cl
     inc rax
     inc rdi
-    dec bl
+    dec rbx
     jmp .next_byte
 .done:
     add [todo_end_offset], TODO_SIZE
@@ -153,9 +162,9 @@ render_todos_as_html:
     mov rax, SYS_write
     mov rdi, [connfd]
     mov rsi, [rsp]
-    inc rsi
     xor rdx, rdx
-    mov dl, byte [rsp]
+    mov dl, byte [rsi]
+    inc rsi
     syscall
 
     write [connfd], todo_footer, todo_footer_len
@@ -237,6 +246,8 @@ tea db "tea"
 tea_len = $ - tea
 milk db "milk"
 milk_len = $ - milk
+aaaa db "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+aaaa_len = $ - aaaa
 
 index_route db "/ "
 index_route_len = $ - index_route
