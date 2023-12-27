@@ -125,6 +125,9 @@ main:
 ;; rdi - void* buf
 ;; rsi - size_t count
 add_todo:
+    
+    cmp qword [todo_end_offset], TODO_SIZE*TODO_CAP
+    jge .capacity_overflow
 
     cmp rsi, 0xFF
     jle .do_not_truncate 
@@ -149,6 +152,7 @@ add_todo:
 
     pop rsi
     pop rdi
+.capacity_overflow:
     ret
 
 render_todos_as_html:
