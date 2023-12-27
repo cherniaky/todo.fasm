@@ -1,9 +1,28 @@
 ;; Subroutines for working with memory
 
-;; rdi - sv.data
-;; rsi - sv.count
-;; rdx - prefix.data
-;; r10 - prefix.count
+;; rdi - void *dest 
+;; rsi - void *src
+;; rdx - size_t n
+memcopy:
+.next_byte:
+    cmp rdx, 0
+    jle .done
+
+    mov al, byte [rsi]
+    mov byte [rdi], al
+
+    inc rsi
+    inc rdi
+    dec rdx
+
+    jmp .next_byte
+.done:
+    ret
+
+;; rdi - void *text 
+;; rsi - size_t text_len
+;; rdx - void *prefix
+;; r10 - size_t prefix_len
 starts_with:
     xor rax, rax
     xor rbx, rbx
