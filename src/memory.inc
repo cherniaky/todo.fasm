@@ -3,7 +3,7 @@
 ;; rdi - void *dest 
 ;; rsi - void *src
 ;; rdx - size_t n
-memcopy:
+memcpy:
 .next_byte:
     cmp rdx, 0
     jle .done
