@@ -336,6 +336,7 @@ index_page_footer db "</ul>", 10
                   db "  }", 10
                   db "  async function addTodo() {", 10
                   db "      await fetch('/', { method:'POST', body: todoText.value });", 10
+                  db "      todoText.value = '';", 10
                   db "      location.reload();", 10
                   db "  }", 10
                   db "  todoText.focus();", 10
