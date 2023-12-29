@@ -1,4 +1,30 @@
-;; Subroutines for working with memory
+;; functions to work with memory
+
+;; rdi - void *buf
+;; rsi - size_t n
+parse_uint:
+    xor rax, rax
+    xor rbx, rbx
+    mov rcx, 10
+.next_digit:
+    cmp rsi, 0
+    jle .done
+
+    mov bl, byte [rdi]
+    cmp bl, '0'
+    jl .done
+    cmp bl, '9'
+    jg .done
+    sub rbx, '0'
+
+    mul rcx
+    add rax, rbx
+
+    inc rdi
+    dec rsi
+    jmp .next_digit
+.done:
+    ret
 
 ;; rdi - void *dest 
 ;; rsi - void *src

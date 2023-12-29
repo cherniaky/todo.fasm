@@ -119,14 +119,9 @@ main:
     cmp [request_len], 0
     jle .serve_error_400
 
-    mov rbx, [request_cur]
-    xor rax, rax
-    mov al, byte [rbx]
-    cmp rax, '0'
-    jl .serve_error_404
-    cmp rax, '9'
-    jg .serve_error_404
-    sub rax, '0'
+    mov rdi, [request_cur]
+    mov rsi, [request_len]
+    call parse_uint
 
     mov rdi, rax
     call delete_todo
