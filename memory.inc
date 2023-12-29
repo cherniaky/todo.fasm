@@ -1,5 +1,33 @@
 ;; functions to work with memory
 
+;; rdi - int fd
+;; rsi - char *buf
+write_cstr:
+    push rdi
+    push rsi
+    
+    funcall1 strlen, rsi
+    mov rdx, rax 
+
+    mov rax, SYS_write
+    pop rsi
+    pop rdi
+    syscall 
+    ret
+
+;; rdi - char *buf
+strlen:
+    xor rax, rax
+.next_byte:
+    cmp byte [rdi], 0
+    je .done
+
+    inc rax
+    inc rdi
+    jmp .next_byte
+.done:
+    ret
+
 ;; rdi - void *buf
 ;; rsi - size_t n
 parse_uint:

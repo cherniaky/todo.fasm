@@ -25,6 +25,12 @@ STDERR equ 2
 EXIT_SUCCESS equ 0
 EXIT_FAILURE equ 1
 
+macro funcall1 func, a
+{
+    mov rdi, a
+    call func
+}
+
 macro funcall2 func, a, b
 {
     mov rdi, a

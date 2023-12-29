@@ -263,7 +263,7 @@ render_todos_as_html:
     cmp rax, rbx
     jge .done
 
-    write [connfd], todo_header, todo_header_len
+    funcall2 write_cstr, [connfd], todo_header
 
     mov rax, SYS_write
     mov rdi, [connfd]
@@ -273,7 +273,7 @@ render_todos_as_html:
     inc rsi
     syscall
 
-    write [connfd], todo_footer, todo_footer_len
+    funcall2 write_cstr, [connfd], todo_footer
     mov rax, [rsp]
     add rax, TODO_SIZE
     mov [rsp], rax
@@ -343,10 +343,8 @@ index_page_footer db "</ul>", 10
                   db "</script>", 10
                   
 index_page_footer_len = $ - index_page_footer
-todo_header db "  <li>"
-todo_header_len = $ - todo_header
-todo_footer db "</li>", 10
-todo_footer_len = $ - todo_footer
+todo_header db "  <li>", 0
+todo_footer db "</li>", 10, 0
 
 get db "GET "
 get_len = $ - get
