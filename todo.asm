@@ -72,6 +72,10 @@ main:
     cmp rax, 0
     jg .handle_put_method
 
+    funcall4 starts_with, [request_cur], [request_len], delete, delete_len
+    cmp rax, 0
+    jg .handle_delete_method
+
     jmp .serve_error_405
 
 .handle_get_method:
@@ -97,6 +101,37 @@ main:
     add [request_cur], put_len
     sub [request_len], put_len
     jmp .serve_error_405
+
+.handle_delete_method:
+    add [request_cur], delete_len
+    sub [request_len], delete_len
+
+    cmp [request_len], 0
+    jle .serve_error_400
+
+    mov rbx, [request_cur]
+    mov al, byte [rbx]
+    cmp al, "/"
+    jne .serve_error_400
+    add [request_cur], 1
+    sub [request_len], 1
+
+    cmp [request_len], 0
+    jle .serve_error_400
+
+    mov rbx, [request_cur]
+    xor rax, rax
+    mov al, byte [rbx]
+    cmp rax, '0'
+    jl .serve_error_404
+    cmp rax, '9'
+    jg .serve_error_404
+    sub rax, '0'
+
+    mov rdi, rax
+    call delete_todo
+
+    jmp .serve_index_page
 
 .serve_index_page:
     write [connfd], index_page_response, index_page_response_len
@@ -167,6 +202,27 @@ drop_http_header:
 
 .invalid_header:
     xor rax, rax
+    ret
+
+;; rdi = size_t index
+delete_todo:
+    mov rax, TODO_SIZE
+    mul rdi ;; mul rax, rdi
+    cmp rax, [todo_end_offset] 
+    jge .overflow
+
+    mov rdi, todo_begin
+    add rdi, rax
+    mov rsi, todo_begin
+    add rsi, rax
+    add rsi, TODO_SIZE
+    mov rdx, todo_begin
+    add rdx, [todo_end_offset]
+    sub rdx, rsi
+    call memcpy
+
+    sub [todo_end_offset], TODO_SIZE
+.overflow:
     ret
 
 ;; rdi - void* buf
@@ -302,6 +358,8 @@ post db "POST "
 post_len = $ - post
 put db "PUT "
 put_len = $ - put
+delete db "DELETE "
+delete_len = $ - delete
 
 index_route db "/ "
 index_route_len = $ - index_route
