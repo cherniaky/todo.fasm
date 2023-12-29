@@ -1,6 +1,36 @@
 ;; functions to work with memory
 
 ;; rdi - int fd
+;; rsi - unsigned int n 
+write_uint:
+    cmp rsi, 0
+    je .base_zero
+
+    mov rcx, 10 ;; base 10 divisor
+    mov rax, rsi ;; move number to rax
+    mov r10, 0 ;; how many digits we processed
+.next_digit:
+    cmp rax, 0
+    je .done
+    mov rdx, 0 
+    div rcx
+    add rdx, '0' ;; convert reminder to ascii
+    dec rsp
+    mov byte [rsp], dl ;; push reminder to stack
+    inc r10
+    jmp .next_digit
+.done:
+    write rdi, rsp, r10
+    add rsp, r10
+    ret
+.base_zero:
+    dec rsp
+    mov byte [rsp], '0'
+    write rdi, rsp, 1
+    inc rsp
+    ret
+
+;; rdi - int fd
 ;; rsi - char *buf
 write_cstr:
     push rdi
