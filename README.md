@@ -12,3 +12,6 @@ $ chmod +x ./todo
 $ ./todo
 open browser at http://localhost:6969/
 ```
+## Credits
+
+Build using [tsoding's code](https://github.com/tsoding)
