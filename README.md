@@ -1,4 +1,4 @@
-# todo.asm
+# todo.fasm
 
 Simple web server in flat assembler
 
