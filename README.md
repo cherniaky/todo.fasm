@@ -1,6 +1,6 @@
 # todo.fasm
 
-Simple web server in flat assembler
+To-Do Web Application in flat assembler for Linux x86_64
 
 ## Quick Start
 
