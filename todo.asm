@@ -14,6 +14,7 @@ include "memory.inc"
 entry main
 main:
     mov [todo_end_offset], 0
+    call load_todos
 
     write STDOUT, start, start_len
 
@@ -130,6 +131,7 @@ main:
     sub [request_len], todo_form_data_prefix_len
 
     funcall2 add_todo, [request_cur], [request_len]
+    call save_todos
     jmp .serve_index_page
 
 .delete_todo_and_serve_index_page:
@@ -139,6 +141,7 @@ main:
     funcall2 parse_uint, [request_cur], [request_len]
     mov rdi, rax
     call delete_todo
+    call save_todos
     jmp .serve_index_page
 
 .shutdown:
@@ -202,6 +205,61 @@ delete_todo:
 .overflow:
     ret
 
+load_todos:
+    ;; [rsp + 8] - void fd
+    ;; [rsp] - st_size
+
+    sub rsp, 16
+    mov qword [rsp+8], -1
+    mov qword [rsp], 0
+
+    open todo_db_file_path, O_RDONLY, 0
+    cmp rax, 0
+    jl .error
+    mov [rsp+8], rax
+
+    fstat64 [rsp+8], statbuf
+    cmp rax, 0
+    jl .error
+
+    mov rax, statbuf
+    add rax, stat64.st_size
+    mov rax, [rax]
+    mov [rsp], rax
+
+    ;; check size of file is divisible by TODO_SIZE
+    mov rcx, TODO_SIZE
+    div rcx
+    cmp rdx, 0
+    jne .error
+
+    ;; truncate the size to supported TODO_CAP
+    mov rax, [rsp]
+    cmp rax, TODO_SIZE*TODO_CAP
+    jle .skip_truncate
+    mov qword [rsp], TODO_SIZE*TODO_CAP
+.skip_truncate:
+    ;; read entire db from file
+    read [rsp+8], todo_begin, [rsp]
+    mov rax, [rsp]
+    mov [todo_end_offset], rax
+
+.error:
+    close [rsp+8]
+    add rsp, 16
+    ret
+
+save_todos:
+    open todo_db_file_path, O_WRONLY or O_CREAT or O_TRUNC, 420
+    cmp rax, 0
+    jl .fail
+    push rax
+    write qword [rsp], todo_begin, [todo_end_offset]
+    close qword [rsp]
+    pop rax
+.fail:
+    ret
+
 ;; rdi - void* buf
 ;; rsi - size_t count
 add_todo:
@@ -232,7 +290,10 @@ add_todo:
 
     pop rsi
     pop rdi
+    mov rax, 0
+    ret
 .capacity_overflow:
+    mov rax, 1
     ret
 
 render_todos_as_html:
@@ -344,6 +405,8 @@ index_route_len = $ - index_route
 
 include "messages.inc"
 
+todo_db_file_path db "todo.db", 0
+
 request_len rq 1
 request_cur rq 1
 request     rb REQUEST_CAP
@@ -351,4 +414,5 @@ request     rb REQUEST_CAP
 todo_begin rb TODO_SIZE*TODO_CAP
 todo_end_offset rq 1
 
+statbuf rb sizeof_fstat64
 

@@ -1,4 +1,5 @@
 SYS_read equ 0
+SYS_open equ 2
 SYS_write equ 1
 SYS_exit equ 60
 SYS_socket equ 41
@@ -7,6 +8,12 @@ SYS_bind equ 49
 SYS_listen equ 50
 SYS_close equ 3
 SYS_setsockopt equ 54
+SYS_fstat64 equ 5
+
+O_RDONLY = 0
+O_WRONLY = 1
+O_CREAT  = 64
+O_TRUNC  = 512
 
 AF_INET equ 2
 SOCK_STREAM equ 1
@@ -24,6 +31,9 @@ STDERR equ 2
 
 EXIT_SUCCESS equ 0
 EXIT_FAILURE equ 1
+
+sizeof_fstat64 = 144
+stat64.st_size = 48 
 
 macro funcall1 func, a
 {
@@ -140,6 +150,11 @@ macro exit code
     syscall
 }
 
+macro open path, flags, mode
+{
+    syscall3 SYS_open, path, flags, mode
+}
+
 struc servaddr_in
 {
     .sin_family dw 0
@@ -152,4 +167,9 @@ struc servaddr_in
 macro setsockopt sockfd, level, optname, optval, optlen
 {
     syscall5 SYS_setsockopt, sockfd, level, optname, optval, optlen
+}
+
+macro fstat64 fd, buf
+{
+    syscall2 SYS_fstat64, fd, buf
 }
