@@ -391,11 +391,13 @@ index_page_response_len = $ - index_page_response
 index_page_header db "<h1>To-do</h1>", 10
                   db "<ul>", 10
 index_page_header_len = $ - index_page_header
-index_page_footer db "</ul>", 10
-                  db "<form method='post' action='/' enctype='text/plain'>", 10
+index_page_footer db "<li>"
+                  db "  <form style='display: inline' method='post' action='/' enctype='text/plain'>", 10
+                  db "    <input style='width: 25px' type='submit' value='+'>", 10
                   db "    <input type='text' name='todo' autofocus>", 10
-                  db "    <input type='submit' value='add'>", 10
-                  db "</form>", 10
+                  db "  </form>", 10
+                  db "</li>", 10
+                  db "</ul>", 10
                   db "<form method='post' action='/shutdown'>", 10
                   db "    <input type='submit' value='shutdown'>", 10
                   db "</form>", 10
@@ -404,7 +406,7 @@ index_page_footer_len = $ - index_page_footer
 todo_header db "  <li>", 0
 todo_footer db "</li>", 10, 0
 delete_button_prefix db "<form style='display:inline' method='post' action='/'>"
-                     db "    <button type='submit' name='delete' value='", 0
+                     db "    <button style='width: 25px' type='submit' name='delete' value='", 0
 delete_button_suffix db "'>x</button></form>", 0
 
 shutdown_response db "HTTP/1.1 200 OK", 13, 10
