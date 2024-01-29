@@ -2,10 +2,12 @@
 
 To-Do Web Application in flat assembler for Linux x86_64
 
-Features:
+## Features:
+
 - Completely self-contained single static executable (depends only on Linux x86_64 kernel);
 - Includes its own simple HTTP Server listening to port 6969 (hardcoded);
-- Frontend works without JavaScript.
+- Frontend works without JavaScript;
+- XSS support in case you still wanna have JavaScript on the Frontend;
 
 ## Quick Start
 
